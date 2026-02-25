@@ -9,3 +9,4 @@ title: "Meetings"
 - [Meeting 03](../meeting_03/meeting_03.qmd)
 - [In-class Exercise (Meeting 03)](in-class-exercise-meeting-03.qmd)
 - [Meeting 04](../meeting_04/meeting_04.qmd)
+- [Meeting 05](../meeting_05/meeting_05.qmd)

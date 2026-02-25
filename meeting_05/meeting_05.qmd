@@ -1,0 +1,1265 @@
+---
+title: "Meeting 05"
+format:
+    html:
+        toc: true
+        toc-depth: 3
+        code-fold: true
+        link-external-newwindow: true
+        code-overflow: wrap
+        code-copy: true
+# pdf output disabled
+
+date: "2026-02-25"
+date-modified: "2026-02-25"
+author: "Kwok-leong Tang"
+---
+
+# Today's Schedule
+
+- Assignment 1: Build a Personal Website
+- Static websites vs. dynamic websites
+- What are HTML and CSS?
+- Choosing a framework
+- Build the website together with Antigravity (HTML/CSS demo)
+- Setting up Python in Antigravity (Topcoder Fullstack)
+- OCR tool: GLM-OCR (macOS + Windows)
+- OCR tool: OCR Batch Processor with LM Studio (all platforms)
+
+# Assignment 1: Build a Personal Website
+
+In this assignment, you will build a personal website and host it on your GitHub account. Here are the requirements:
+
+1. Include the following pages: About Me, Publications, Projects, and Blog (1 point each)
+2. Implement proper navigation, such as a navigation bar (1 point)
+3. Host the website on GitHub Pages through your GitHub account. The website should be updateable via commits and GitHub Actions (3 points)
+4. Deploy the website at `https://your-username.github.io` (2 points)
+
+:::{.callout-important}
+The total score for this assignment is **10 points**. Your website must be live and accessible at `https://your-username.github.io` when graded.
+:::
+
+:::{.callout-note}
+You are free to use **any framework** to build your website. Quarto, Hugo, Jekyll, Next.js, plain HTML/CSS — whatever you are comfortable with. The only requirements are the four pages, navigation, GitHub Pages hosting, and automatic deployment via GitHub Actions.
+:::
+
+# Static Websites vs. Dynamic Websites
+
+Before choosing a framework, it is important to understand the difference between static and dynamic websites, because **GitHub Pages can only host static websites**.
+
+## Static Websites
+
+A static website is a collection of pre-built HTML, CSS, and JavaScript files. When a visitor requests a page, the server simply sends the file as-is — no processing happens on the server side.
+
+- The content is the same for every visitor.
+- No server-side language (Python, PHP, Ruby, etc.) runs when someone visits the page.
+- No database is involved.
+- Examples: personal portfolios, documentation sites, blogs built with static site generators.
+
+```{mermaid}
+flowchart LR
+    Browser[Browser] -->|Request| Server[Web Server]
+    Server -->|Send HTML/CSS/JS files| Browser
+```
+
+## Dynamic Websites
+
+A dynamic website generates pages on the fly. When a visitor requests a page, the server runs code to build the HTML before sending it back. This allows personalized content, user authentication, and real-time data.
+
+- The content can change depending on the user, time, or database state.
+- A server-side language (Python, PHP, Node.js, etc.) processes each request.
+- Typically connected to a database.
+- Examples: social media platforms, e-commerce sites, web applications like Canvas.
+
+```{mermaid}
+flowchart LR
+    Browser[Browser] -->|Request| Server[Application Server]
+    Server -->|Query| DB[(Database)]
+    DB -->|Data| Server
+    Server -->|Generated HTML| Browser
+```
+
+:::{.callout-important}
+GitHub Pages is a **static site hosting** service. It can only serve pre-built files — it cannot run server-side code or connect to a database. This means your website must be a static site. All the frameworks listed below are **static site generators**: they take your source files (Markdown, templates, etc.) and produce plain HTML/CSS/JS that GitHub Pages can serve.
+:::
+
+# What are HTML and CSS?
+
+No matter which framework you choose, the final output of a static website is always **HTML** and **CSS**. Understanding these two languages is essential for building and customizing any website.
+
+## HTML (HyperText Markup Language)
+
+HTML is the **structure** of a web page. It defines *what* content appears on the page and how it is organized. HTML uses **tags** — pairs of angle brackets — to mark up content.
+
+Here is a minimal HTML page:
+
+```{.html}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+    <p>This is a paragraph.</p>
+</body>
+</html>
+```
+
+### Common HTML Tags
+
+| Tag | Purpose | Example |
+|-----|---------|---------|
+| `<h1>` to `<h6>` | Headings (h1 is the largest) | `<h1>Title</h1>` |
+| `<p>` | Paragraph | `<p>Some text.</p>` |
+| `<a>` | Hyperlink | `<a href="https://example.com">Click here</a>` |
+| `<img>` | Image | `<img src="photo.jpg" alt="A photo">` |
+| `<ul>`, `<li>` | Unordered list | `<ul><li>Item 1</li></ul>` |
+| `<div>` | Generic container (for grouping) | `<div>...</div>` |
+| `<nav>` | Navigation section | `<nav>...</nav>` |
+
+### How HTML Tags Work
+
+HTML tags come in pairs: an **opening tag** and a **closing tag**. The closing tag has a `/` before the tag name.
+
+```{mermaid}
+flowchart LR
+    A["&lt;p&gt;"] --> B["Content goes here"] --> C["&lt;/p&gt;"]
+    style A fill:#e6f3ff,stroke:#333
+    style C fill:#ffe6e6,stroke:#333
+```
+
+Tags can be **nested** inside each other, forming a tree structure:
+
+```{.html}
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+    </nav>
+    <h1>Welcome</h1>
+    <p>This is my website.</p>
+</body>
+```
+
+## CSS (Cascading Style Sheets)
+
+CSS is the **appearance** of a web page. It defines *how* the content looks — colors, fonts, spacing, layout, and more. While HTML says "this is a heading," CSS says "this heading should be blue, 24px, and centered."
+
+Here is a simple example:
+
+```{.css}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+nav {
+    background-color: #333;
+    padding: 10px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-right: 15px;
+}
+```
+
+### How CSS Works
+
+A CSS rule has two parts: a **selector** (which HTML element to style) and a **declaration block** (the styles to apply).
+
+```{.css}
+selector {
+    property: value;
+    property: value;
+}
+```
+
+For example:
+
+```{.css}
+h1 {
+    color: blue;
+    font-size: 24px;
+}
+```
+
+This rule says: "Find all `<h1>` elements and make them blue with a font size of 24px."
+
+### Three Ways to Add CSS
+
+1. **Inline** (inside an HTML tag — not recommended for large projects):
+```{.html}
+<h1 style="color: blue;">Hello</h1>
+```
+
+2. **Internal** (inside a `<style>` tag in the HTML file):
+```{.html}
+<head>
+    <style>
+        h1 { color: blue; }
+    </style>
+</head>
+```
+
+3. **External** (in a separate `.css` file — recommended):
+```{.html}
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+```
+
+:::{.callout-note}
+Using an **external CSS file** is the best practice. It keeps your style separate from your content and allows you to share one stylesheet across multiple HTML pages, so your entire website looks consistent.
+:::
+
+## HTML + CSS Together
+
+Think of building a website like building a house:
+
+- **HTML** is the structure: walls, rooms, doors, and windows.
+- **CSS** is the interior design: paint colors, furniture placement, lighting, and decorations.
+
+```{mermaid}
+flowchart TB
+    HTML["HTML (Structure)"] --> Page["Web Page"]
+    CSS["CSS (Style)"] --> Page
+    JS["JavaScript (Behavior)"] -.->|optional| Page
+```
+
+:::{.callout-tip}
+For this assignment, you only need HTML and CSS. JavaScript is optional and not required.
+:::
+
+# Choosing a Framework
+
+There are many static site generators and frameworks that work well with GitHub Pages. Here is a comparison to help you decide:
+
+| Framework | Language | Learning Curve | Best For |
+|-----------|----------|---------------|----------|
+| Plain HTML/CSS | HTML, CSS, JS | Low–High | Full control, no build step needed |
+| [Quarto](https://quarto.org) | Markdown (`.qmd`) | Low | Academics, researchers, data-driven content |
+| [Hugo](https://gohugo.io) | Markdown + Go templates | Medium | Fast builds, rich theme ecosystem |
+| [Jekyll](https://jekyllrb.com) | Markdown + Liquid | Medium | Native GitHub Pages support, blogging |
+| [Next.js](https://nextjs.org) | React (JavaScript) | High | Interactive sites, web developers |
+
+:::{.callout-tip}
+If you have no prior web development experience, **plain HTML/CSS** is a great starting point because it teaches you the fundamentals that every other framework builds upon. **Quarto** is also a good choice since we already use it in this course. If you are already familiar with a web framework, feel free to use it.
+:::
+
+# Build the Website Together (HTML/CSS)
+
+In class, we will walk through building a personal website using **plain HTML and CSS** and **Antigravity** (VS Code) as our editor. By the end of this session, you will have a working website deployed on GitHub Pages.
+
+If you choose a different framework (Quarto, Hugo, Jekyll, etc.), you can still follow along for the GitHub setup steps (Steps 1, 7–10), which apply to all frameworks.
+
+## Prerequisites
+
+Before we begin, make sure you have the following installed (we covered these in Meeting 03):
+
+- **Git**: Verify by running `git --version`
+- **GitHub CLI**: Verify by running `gh --version`
+- **Antigravity** (VS Code)
+- A **GitHub account**
+
+:::{.callout-tip}
+If you are missing any of the above, refer to [Meeting 03](../meeting_03/meeting_03.qmd) for installation instructions.
+:::
+
+## Step 1: Create the GitHub Repository
+
+This step applies to **all frameworks**.
+
+Your personal website must be hosted at `https://your-username.github.io`. GitHub Pages requires a repository with a specific name for this to work.
+
+1. Open your terminal.
+2. Log in to GitHub CLI if you haven't already:
+```{.bash}
+gh auth login
+```
+3. Create the repository:
+```{.bash}
+gh repo create your-username.github.io --public --clone
+```
+Replace `your-username` with your actual GitHub username. For example, if your username is `jzhang`, the command would be:
+```{.bash}
+gh repo create jzhang.github.io --public --clone
+```
+4. Navigate into the repository folder:
+```{.bash}
+cd your-username.github.io
+```
+
+:::{.callout-important}
+The repository name **must** be exactly `your-username.github.io`. If it does not match your GitHub username, GitHub Pages will not deploy to the root URL.
+:::
+
+## Step 2: Create the Project Structure
+
+Open the project folder in Antigravity:
+```{.bash}
+code .
+```
+
+We will create the following file structure:
+
+```
+your-username.github.io/
+├── index.html          (About Me - homepage)
+├── publications.html   (Publications page)
+├── projects.html       (Projects page)
+├── blog.html           (Blog page)
+├── style.css           (Shared stylesheet)
+└── .github/
+    └── workflows/
+        └── deploy.yml  (GitHub Actions workflow)
+```
+
+## Step 3: Create the Shared Stylesheet (`style.css`)
+
+Create a file called `style.css`. This single file will control the look of all your pages.
+
+:::{.callout-tip title="Antigravity AI Prompt"}
+Try this prompt in Antigravity's chat panel (Ctrl+Shift+I / Cmd+Shift+I):
+
+```
+Create a style.css file for a personal academic website.
+The site has four pages: About Me, Publications, Projects, and Blog.
+I need styles for: a centered navigation bar with a dark background
+and white links, serif body font, headings, a blog entry layout
+with dates, and a simple footer. Keep it clean and minimal.
+```
+:::
+
+Here is an example of what your `style.css` might look like:
+
+```{.css}
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.8;
+    color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fafafa;
+}
+
+/* Navigation bar */
+nav {
+    background-color: #2c3e50;
+    padding: 15px 20px;
+    margin: -20px -20px 30px -20px;
+    text-align: center;
+}
+
+nav a {
+    color: #ecf0f1;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 16px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Headings */
+h1 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+h2 {
+    font-size: 22px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    color: #34495e;
+}
+
+/* Paragraphs and lists */
+p {
+    margin-bottom: 15px;
+}
+
+ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+li {
+    margin-bottom: 5px;
+}
+
+/* Links */
+a {
+    color: #2980b9;
+}
+
+/* Blog post entries */
+.blog-entry {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+
+.blog-entry h3 {
+    margin-bottom: 5px;
+}
+
+.blog-date {
+    color: #888;
+    font-size: 14px;
+}
+
+/* Footer */
+footer {
+    margin-top: 40px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+}
+```
+
+## Step 4: Create the Pages
+
+### About Me (`index.html`)
+
+This is your homepage. Create a file called `index.html`.
+
+:::{.callout-tip title="Antigravity AI Prompt"}
+```
+Create an index.html file for my personal academic website.
+This is the "About Me" homepage. It should include:
+- A navigation bar linking to index.html (About Me),
+  publications.html, projects.html, and blog.html
+- My name as the main heading
+- Sections for "About Me", "Research Interests" (as a list),
+  and "Contact" (with email and GitHub link)
+- A footer with copyright 2026
+- Link to an external stylesheet called style.css
+```
+:::
+
+Here is an example:
+
+```{.html}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">About Me</a>
+        <a href="publications.html">Publications</a>
+        <a href="projects.html">Projects</a>
+        <a href="blog.html">Blog</a>
+    </nav>
+
+    <h1>Your Name</h1>
+
+    <h2>About Me</h2>
+    <p>Welcome to my personal website. I am a graduate student at Harvard University studying ...</p>
+
+    <h2>Research Interests</h2>
+    <ul>
+        <li>Interest 1</li>
+        <li>Interest 2</li>
+        <li>Interest 3</li>
+    </ul>
+
+    <h2>Contact</h2>
+    <ul>
+        <li>Email: your-email@example.com</li>
+        <li>GitHub: <a href="https://github.com/your-username">your-username</a></li>
+    </ul>
+
+    <footer>
+        &copy; 2026 Your Name
+    </footer>
+</body>
+</html>
+```
+
+:::{.callout-note}
+Notice the `<nav>` section at the top. This navigation bar appears on every page. When you create the other pages, you will copy this same `<nav>` block into each one, so visitors can navigate between pages.
+:::
+
+### Publications (`publications.html`)
+
+:::{.callout-tip title="Antigravity AI Prompt"}
+```
+Create a publications.html page for my academic website.
+Use the same navigation bar and footer as index.html.
+Include sections for "Journal Articles", "Book Chapters",
+and "Conference Papers", each with placeholder entries
+in standard academic citation format. Link to style.css.
+```
+:::
+
+Create a file called `publications.html`:
+
+```{.html}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publications - Your Name</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">About Me</a>
+        <a href="publications.html">Publications</a>
+        <a href="projects.html">Projects</a>
+        <a href="blog.html">Blog</a>
+    </nav>
+
+    <h1>Publications</h1>
+
+    <h2>Journal Articles</h2>
+    <ul>
+        <li>Author(s). "Title of the Article." <em>Journal Name</em> Volume, no. Issue (Year): Pages.</li>
+    </ul>
+
+    <h2>Book Chapters</h2>
+    <ul>
+        <li>Author(s). "Title of the Chapter." In <em>Book Title</em>, edited by Editor(s), Pages. Publisher, Year.</li>
+    </ul>
+
+    <h2>Conference Papers</h2>
+    <p>(Add your publications here as your academic career progresses.)</p>
+
+    <footer>
+        &copy; 2026 Your Name
+    </footer>
+</body>
+</html>
+```
+
+### Projects (`projects.html`)
+
+:::{.callout-tip title="Antigravity AI Prompt"}
+```
+Create a projects.html page for my academic website.
+Use the same navigation bar and footer as index.html.
+Include two placeholder project sections, each with a
+title and description paragraph. Link to style.css.
+```
+:::
+
+Create a file called `projects.html`:
+
+```{.html}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - Your Name</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">About Me</a>
+        <a href="publications.html">Publications</a>
+        <a href="projects.html">Projects</a>
+        <a href="blog.html">Blog</a>
+    </nav>
+
+    <h1>Projects</h1>
+
+    <h2>Project 1: Title</h2>
+    <p>Description of your project.</p>
+
+    <h2>Project 2: Title</h2>
+    <p>Description of your project.</p>
+
+    <footer>
+        &copy; 2026 Your Name
+    </footer>
+</body>
+</html>
+```
+
+### Blog (`blog.html`)
+
+:::{.callout-tip title="Antigravity AI Prompt"}
+```
+Create a blog.html page for my academic website.
+Use the same navigation bar and footer as index.html.
+Include one sample blog post entry with a title, date
+(February 25, 2026), and a short paragraph. Each blog
+entry should be in its own div with class "blog-entry",
+and the date should have class "blog-date". Link to style.css.
+```
+:::
+
+Create a file called `blog.html`:
+
+```{.html}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Your Name</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">About Me</a>
+        <a href="publications.html">Publications</a>
+        <a href="projects.html">Projects</a>
+        <a href="blog.html">Blog</a>
+    </nav>
+
+    <h1>Blog</h1>
+
+    <div class="blog-entry">
+        <h3>My First Blog Post</h3>
+        <p class="blog-date">February 25, 2026</p>
+        <p>This is my first blog post on my personal website!</p>
+    </div>
+
+    <footer>
+        &copy; 2026 Your Name
+    </footer>
+</body>
+</html>
+```
+
+:::{.callout-tip}
+With plain HTML, you add new blog posts by adding new `<div class="blog-entry">` blocks to `blog.html`. Put the newest post at the top so visitors see your latest writing first.
+:::
+
+## Step 5: Preview Your Website Locally
+
+You can preview your website by simply opening `index.html` in a browser:
+
+- **macOS**:
+```{.bash}
+open index.html
+```
+- **Windows**:
+```{.powershell}
+start index.html
+```
+
+Alternatively, you can install the **Live Server** extension in Antigravity for auto-refreshing preview:
+
+1. Open Antigravity.
+2. Go to Extensions (left sidebar) and search for "Live Server".
+3. Install it, then right-click `index.html` and select **"Open with Live Server"**.
+
+Check that:
+
+- All four pages are accessible from the navigation bar.
+- The navigation links work correctly.
+- The content and styling display as expected.
+
+## Step 6: Set Up GitHub Actions for Deployment
+
+Since plain HTML/CSS does not require a build step, the GitHub Actions workflow simply deploys the files as-is to GitHub Pages.
+
+1. Create the GitHub Actions workflow directory:
+```{.bash}
+mkdir -p .github/workflows
+```
+
+2. Create a file called `.github/workflows/deploy.yml` with the following content:
+
+:::{.callout-tip title="Antigravity AI Prompt"}
+```
+Create a GitHub Actions workflow file (.github/workflows/deploy.yml)
+that deploys a plain HTML/CSS website to GitHub Pages.
+The site has no build step — just deploy all files from the root
+directory. It should trigger on push to the main branch and also
+support manual dispatch. Use the official GitHub Pages actions
+(configure-pages, upload-pages-artifact, deploy-pages).
+```
+:::
+
+```{.yaml}
+on:
+  workflow_dispatch:
+  push:
+    branches: main
+
+name: Deploy to GitHub Pages
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+:::{.callout-note}
+This workflow tells GitHub to: (1) check out your repository, and (2) deploy all files directly to GitHub Pages every time you push to the `main` branch. No build step is needed because the HTML/CSS files are already ready to serve.
+:::
+
+### Workflows for Other Frameworks (for reference)
+
+If you choose a different framework, you will need a workflow that includes a build step. Here are examples:
+
+**Quarto:**
+```{.yaml}
+steps:
+  - uses: actions/checkout@v4
+  - uses: quarto-dev/quarto-actions/setup@v2
+  - uses: quarto-dev/quarto-actions/publish@v2
+    with:
+      target: gh-pages
+```
+
+**Hugo:**
+```{.yaml}
+steps:
+  - uses: actions/checkout@v4
+  - uses: peaceiris/actions-hugo@v3
+    with:
+      hugo-version: 'latest'
+  - run: hugo --minify
+  - uses: peaceiris/actions-gh-pages@v4
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      publish_dir: ./public
+```
+
+**Jekyll:**
+
+Jekyll is natively supported by GitHub Pages. You can select **"Deploy from a branch"** in GitHub Pages settings without a custom workflow.
+
+## Step 7: Commit and Push
+
+Now let's commit everything and push to GitHub:
+
+```{.bash}
+git add .
+git commit -m "Initial website with About, Publications, Projects, and Blog pages"
+git branch -M main
+git push -u origin main
+```
+
+## Step 8: Enable GitHub Pages
+
+1. Go to your repository on GitHub: `https://github.com/your-username/your-username.github.io`
+2. Click **Settings** → **Pages** (in the left sidebar).
+3. Under **Source**, select **GitHub Actions**.
+
+:::{.callout-important}
+You must select **GitHub Actions** as the source, not "Deploy from a branch". This is because we are using a GitHub Actions workflow to deploy the site.
+:::
+
+After the GitHub Actions workflow completes (you can check its progress under the **Actions** tab), your website should be live at:
+
+`https://your-username.github.io`
+
+## Step 9: Making Updates
+
+From now on, every time you want to update your website:
+
+1. Edit your HTML/CSS files in Antigravity.
+2. Preview locally by opening `index.html` in a browser or using Live Server.
+3. Commit and push:
+```{.bash}
+git add .
+git commit -m "Describe your changes"
+git push
+```
+4. GitHub Actions will automatically deploy your updated site.
+
+# Using Antigravity's AI Features to Build Your Website
+
+You do not have to write every line of code yourself. You can use Antigravity's built-in AI features (such as Copilot or the chat panel) to help you generate HTML pages, write CSS styles, create GitHub Actions workflows, and debug issues. This is an encouraged part of the agentic approach we practice in this course.
+
+## Build Everything at Once
+
+If you want to generate the entire website in one go, try this prompt:
+
+:::{.callout-tip title="Antigravity AI Prompt — Full Website"}
+```
+Build a complete personal academic website using plain HTML and CSS.
+Create the following files:
+
+1. style.css — a shared stylesheet with a clean, minimal academic
+   design. Include styles for: navigation bar (dark background,
+   white links, centered), serif body font, headings, paragraphs,
+   lists, links, blog entry layout with dates, and a footer.
+
+2. index.html — "About Me" homepage with my name, a short bio,
+   research interests as a list, and contact info (email + GitHub).
+
+3. publications.html — "Publications" page with sections for
+   Journal Articles, Book Chapters, and Conference Papers,
+   each with placeholder citation entries.
+
+4. projects.html — "Projects" page with two placeholder project
+   sections, each with a title and description.
+
+5. blog.html — "Blog" page with one sample blog entry including
+   a title, date, and paragraph.
+
+All HTML pages should share the same navigation bar linking to
+all four pages and the same footer. All pages should link to
+style.css.
+```
+:::
+
+## Customization Prompts
+
+Once you have the basic website, try these prompts to customize it further:
+
+:::{.callout-tip title="Antigravity AI Prompt — Add Your Photo"}
+```
+Add a profile photo to my index.html About Me page. The image
+file is called photo.jpg and should appear at the top of the
+page, centered, with a circular crop and a max width of 200px.
+Add the necessary CSS to style.css.
+```
+:::
+
+:::{.callout-tip title="Antigravity AI Prompt — Responsive Design"}
+```
+Make my website responsive for mobile devices. Update style.css
+so that: the navigation bar stacks vertically on small screens,
+the body padding adjusts, and text sizes scale appropriately.
+Use CSS media queries for screens smaller than 600px.
+```
+:::
+
+:::{.callout-tip title="Antigravity AI Prompt — Change the Theme"}
+```
+Change the color scheme of my website to use a light blue
+navigation bar (#3498db) with white text, and update the
+heading colors to match. Keep the overall design clean
+and professional.
+```
+:::
+
+# Setting Up Python in Antigravity (Topcoder Fullstack)
+
+The GLM-OCR tool requires **Python 3.12 or higher**. Since you are using the **Topcoder Fullstack** extension in Antigravity (VS Code), you need to make sure the correct Python version is configured. Follow these steps to check and update your Python version.
+
+## Step 1: Open the Topcoder Fullstack Extension Settings
+
+1. Open **Antigravity** (VS Code).
+2. Click the **gear icon** (⚙️) at the bottom-left of the sidebar, then select **Settings**.
+3. In the search bar at the top, type **Topcoder Fullstack**.
+4. You will see the Topcoder Fullstack extension settings. Look for the **Python** section or the list of configured language runtimes.
+
+:::{.callout-tip}
+You can also press `Ctrl+,` (Windows/Linux) or `Cmd+,` (macOS) to open Settings quickly, then search for "Topcoder Fullstack".
+:::
+
+## Step 2: Check Your Current Python Version
+
+In the Topcoder Fullstack settings, you should see a list of programming language runtimes that have been configured. Look for a **Python** entry — it will display the currently configured version number (e.g., `3.11.x`, `3.12.x`, etc.).
+
+:::{.callout-warning}
+If you see a Python version **lower than 3.12** (such as 3.10 or 3.11), you **must** update it. GLM-OCR will not work with older Python versions.
+:::
+
+## Step 3: Add Python 3.14.x
+
+If Python 3.14.x is not already listed, you need to add it:
+
+1. In the Topcoder Fullstack extension settings, find the option to **add a new runtime** or **edit the Python version**.
+2. Click **Add** or the **+** button next to the language runtimes list.
+3. Select **Python** as the language.
+4. Set the version to **3.14** (the extension will install the latest 3.14.x release automatically).
+5. Click **Save** or **Apply** to confirm.
+
+After adding Python 3.14.x, it should appear in your list of configured runtimes.
+
+## Step 4: Verify the Installation
+
+Open a new terminal in Antigravity (`Ctrl+`` ` or `Cmd+`` `) and run:
+
+```bash
+python3 --version
+```
+
+You should see output like:
+
+```
+Python 3.14.x
+```
+
+:::{.callout-note}
+If you have multiple Python versions installed, make sure the Topcoder Fullstack extension has set 3.14.x as the **active** version. You may also need to close and reopen the terminal for the change to take effect.
+:::
+
+# OCR Tool: GLM-OCR
+
+In Meeting 04, we introduced OCR tools for extracting text from scanned documents and images. This week, we provide an updated version of the **GLM-OCR** tool that works on **both macOS (Apple Silicon) and Windows**.
+
+- **macOS (Apple Silicon)**: Uses the MLX framework for fast local inference on the Metal GPU. Download `glm-ocr-mlx-main.zip`.
+- **Windows**: Uses **Ollama** for local inference. Download `glm-ocr-mlx-windows.zip`.
+
+Both versions share the same web interface and the same GLM-OCR model. The difference is the inference backend. You can also view the tutorial slides at [glm-ocr-mlx-tutorial.html](glm-ocr-mlx-tutorial.html).
+
+## What is GLM-OCR?
+
+GLM-OCR is a local OCR tool that uses the GLM-OCR model (a 0.9B parameter vision-language model) to convert scanned documents and images into structured Markdown with tables, formulas, and layout-aware text — all running locally on your machine.
+
+### macOS Architecture (MLX)
+
+```{mermaid}
+flowchart LR
+    A["Browser\n(localhost:5003)"] --> B["Flask App\n(app.py)"]
+    B --> C["GLM-OCR SDK"]
+    C --> D["MLX Server\n(:8080)"]
+    D --> E["Metal GPU"]
+```
+
+### Windows Architecture (Ollama)
+
+```{mermaid}
+flowchart LR
+    A["Browser\n(localhost:5003)"] --> B["Flask App\n(app.py)"]
+    B --> C["GLM-OCR SDK"]
+    C --> D["Ollama\n(:11434)"]
+    D --> E["CPU / NVIDIA GPU"]
+```
+
+## Prerequisites
+
+### macOS (Apple Silicon)
+
+- **Apple Silicon Mac** (M1, M2, M3, or M4)
+- **Python 3.12 or higher**: Download from [python.org](https://www.python.org/downloads/macos/) if not installed.
+- **Git**: Install via Xcode Command Line Tools (`xcode-select --install`) or Homebrew (`brew install git`).
+- **Disk space**: ~20 GB for model weights (downloaded automatically on first launch).
+- **Memory**: 16 GB unified memory minimum; 32 GB+ recommended for multi-page PDFs.
+
+### Windows
+
+- **Python 3.12 or higher**: Download from [python.org](https://www.python.org/downloads/). During installation, make sure to check **"Add Python to PATH"**.
+- **Git**: Download from [git-scm.com](https://git-scm.com/download/win) or install via `winget install --id Git.Git`.
+- **Ollama**: The launcher will offer to install it automatically if not found. Or install manually from [ollama.com](https://ollama.com/download).
+- **Disk space**: ~5 GB for the Ollama model + layout detection weights.
+- **GPU (optional)**: An NVIDIA GPU with CUDA support speeds up inference significantly. Ollama also works on CPU, but will be slower.
+
+## Installation and Launch
+
+### macOS
+
+1. Download `glm-ocr-mlx-main.zip` from the `meeting_05/` folder and unzip it.
+2. **Double-click `launch.command`** in Finder to start the application.
+    - If macOS blocks it: right-click the file → **Open** → confirm in the dialog.
+3. On **first run**, the script automatically:
+    - Clones the GLM-OCR SDK from GitHub
+    - Creates a Python virtual environment and installs dependencies
+    - Downloads model weights from Hugging Face (~20 GB)
+4. The **MLX Server** starts on port 8080 (loads the model into unified memory — the first load takes about 30–60 seconds).
+5. The **Flask Web UI** starts on port 5003 and your browser opens automatically to `http://localhost:5003`.
+6. **Keep the terminal open.** Press `Ctrl+C` to stop both servers when done.
+
+### Windows
+
+1. Download `glm-ocr-mlx-windows.zip` from the `meeting_05/` folder and unzip it.
+2. **Double-click `launch.bat`** to start the application.
+3. On **first run**, the script automatically:
+    - Checks for Python 3.12+ and Git
+    - Installs **Ollama** if not already present (prompts you to confirm — installs to `%LOCALAPPDATA%`, no admin required)
+    - Starts the Ollama service on port 11434
+    - Pulls the `glm-ocr:latest` model (first run — this may take several minutes)
+    - Clones the GLM-OCR SDK from GitHub
+    - Creates a Python virtual environment and installs dependencies
+    - Downloads layout detection weights (PP-DocLayoutV3)
+4. The **Flask Web UI** starts on port 5003 and your browser opens automatically to `http://localhost:5003`.
+5. **Keep the command prompt window open.** Close the window or press `Ctrl+C` to stop.
+
+:::{.callout-note}
+After the first run, subsequent launches are much faster because the virtual environment, Ollama model, and weights are already in place.
+:::
+
+## Project Structure
+
+After unzipping, the project folder looks like this:
+
+```
+glm-ocr-mlx-windows/
+├── launch.command         ← macOS launcher (double-click)
+├── launch.bat             ← Windows launcher (double-click)
+├── app.py                 ← Flask web server
+├── config/
+│   ├── glm_config_mac.yaml      ← macOS settings (MLX, port 8080)
+│   └── glm_config_windows.yaml  ← Windows settings (Ollama, port 11434)
+├── requirements.txt       ← Python dependencies
+├── templates/
+│   └── index.html         ← web UI
+├── static/
+│   ├── css/style.css
+│   └── js/main.js
+├── utils/
+│   ├── download_weights.py
+│   ├── logger.py
+│   └── deep_clean.command ← reset utility (macOS)
+├── weights/               ← layout detection model (auto-downloaded)
+├── output/                ← OCR results (Markdown + JSON + images)
+├── sessions/              ← job state files
+└── glm-ocr/               ← cloned GLM-OCR SDK
+```
+
+The `weights/`, `output/`, `sessions/`, and `glm-ocr/` directories are created automatically at runtime. On Windows, the GLM-OCR model weights are managed by Ollama separately (not stored in the `weights/` folder).
+
+## Using the Web UI
+
+The web interface is identical on both macOS and Windows:
+
+1. **Upload**: Drag and drop a PDF, PNG, or JPEG onto the upload area — or click to browse. Accepted formats: `.pdf`, `.png`, `.jpg`, `.jpeg`.
+2. **Processing**: A progress bar shows real-time status. PDFs are split into page images, then each page is OCR'd sequentially.
+3. **Review Results**: A split-panel view shows the original document on the left and the rendered Markdown on the right. Navigate pages with Prev/Next buttons.
+4. **Export**: Click **Export** to download results as **Markdown** (`.md`) or **JSON** (`.json`) — either the current page or the full document.
+
+Additional features:
+
+- **Layout Toggle**: Switch between the original image and a layout visualization overlay to see detected regions (tables, formulas, text blocks).
+- **History**: Click the History button to browse and reload previous scan results. Results persist across app restarts.
+
+## Configuration
+
+Settings are stored in the `config/` directory. The launcher automatically selects the correct config file for your platform:
+
+- **macOS**: `config/glm_config_mac.yaml` — uses MLX server on port 8080
+- **Windows**: `config/glm_config_windows.yaml` — uses Ollama on port 11434
+
+Common settings you might want to adjust:
+
+| Setting | Mac Default | Windows Default | Description |
+|---------|-------------|-----------------|-------------|
+| `pipeline.enable_layout` | `true` | `true` | Enable layout detection. Set to `false` for simple documents. |
+| `pipeline.max_workers` | `4` | `32` | Parallel workers for region OCR. |
+| `pipeline.ocr_api.api_port` | `8080` | `11434` | Inference server port. |
+| `pipeline.ocr_api.api_mode` | `openai` | `ollama_generate` | API protocol for the inference server. |
+| `pipeline.page_loader.max_tokens` | `4096` | `4096` | Maximum tokens per OCR request. |
+| `pipeline.layout.threshold` | `0.3` | `0.3` | Detection confidence threshold. |
+
+### MaaS Mode (Cloud API)
+
+If you want to use the cloud API instead of local inference (works on any platform, no GPU needed), set `pipeline.maas.enabled: true` in either config file and provide a Zhipu API key:
+
+```{.yaml}
+pipeline:
+  maas:
+    enabled: true
+    api_key: your-zhipu-key
+```
+
+## Troubleshooting
+
+### macOS
+
+- **"Python 3.12 or higher is required"**: Install the latest Python from [python.org](https://www.python.org/downloads/macos/). The system Python on macOS is too old.
+- **macOS blocks `launch.command`**: Right-click the file → **Open** → confirm in the dialog. Or go to System Settings → Privacy & Security → Allow.
+- **MLX Server won't start (port 8080)**: Another process may be using the port. Run `lsof -i :8080` to check. Use the deep clean script to kill stale processes.
+- **First scan is very slow**: Normal — the model weights load into unified memory on the first request. Subsequent scans are much faster.
+- **Out of memory**: The model needs approximately 8 GB of unified memory. Close other heavy applications. 16 GB Macs should work; 8 GB Macs may struggle.
+
+### Windows
+
+- **"Python is not installed"**: Download and install Python 3.12+ from [python.org](https://www.python.org/downloads/). Make sure to check **"Add Python to PATH"** during installation.
+- **"Git is not installed"**: Install Git from [git-scm.com](https://git-scm.com/download/win) or run `winget install --id Git.Git` in PowerShell.
+- **Ollama installation fails**: Install Ollama manually from [ollama.com/download](https://ollama.com/download). The launcher installs it to `%LOCALAPPDATA%` (no admin rights needed).
+- **Ollama fails to start (port 11434)**: Another process may be using the port. Run `netstat -ano | findstr :11434` in Command Prompt to check. Kill the conflicting process or restart your computer.
+- **Model pull fails**: Check your internet connection. You can manually pull the model by running `ollama pull glm-ocr:latest` in Command Prompt.
+- **Slow processing on CPU**: If you do not have an NVIDIA GPU, OCR will run on CPU and may be slow. Consider using the MaaS cloud API mode for faster results.
+
+### Deep Clean / Reset (macOS)
+
+If something goes wrong on macOS, use the interactive reset utility:
+
+```{.bash}
+./utils/deep_clean.command
+```
+
+This script prompts you to selectively reset components: kill stale server processes, remove the virtual environment, delete the cloned SDK, clear OCR results and job history, or delete the downloaded model weights.
+
+# OCR Tool: OCR Batch Processor (for Windows/Linux/Intel Mac)
+
+If you do not have an Apple Silicon Mac, you can use the **OCR Batch Processor** — a web-based OCR tool that connects to **LM Studio** running locally on your machine. It works on Windows, Linux, and Intel Macs.
+
+Application: [https://kltng.github.io/ocr_batch_processor/](https://kltng.github.io/ocr_batch_processor/)
+
+Repository: [https://github.com/kltng/ocr_batch_processor](https://github.com/kltng/ocr_batch_processor)
+
+## What is the OCR Batch Processor?
+
+The OCR Batch Processor is a progressive web application (PWA) that uses Vision Language Models to convert scanned documents and images into structured Markdown and HTML. It supports two providers:
+
+- **LM Studio (Local)**: Runs entirely on your computer. No data leaves your machine.
+- **Google Gemini (Cloud)**: Uses Google's API for higher accuracy (requires an API key).
+
+In this guide, we will focus on the **LM Studio** setup.
+
+## What is LM Studio?
+
+LM Studio is a desktop application that lets you download and run large language models locally on your computer. It provides an OpenAI-compatible API server, which means other applications (like the OCR Batch Processor) can connect to it and send requests to the model.
+
+LM Studio: [https://lmstudio.ai](https://lmstudio.ai)
+
+## Step 1: Install LM Studio
+
+1. Go to [https://lmstudio.ai](https://lmstudio.ai) and download the installer for your operating system (Windows, macOS, or Linux).
+2. Install and open LM Studio.
+
+## Step 2: Download a Vision Model
+
+OCR requires a **vision-capable model** — a model that can understand images, not just text. In LM Studio:
+
+1. Click the **Search** icon (magnifying glass) in the left sidebar.
+2. Search for one of the following vision models:
+
+| Model | Size | Recommended For |
+|-------|------|----------------|
+| `Gemma-3-Vision` | ~5 GB | Good balance of speed and accuracy |
+| `Qwen2.5-VL` | ~5–8 GB | Strong multilingual OCR (good for CJK text) |
+| `Llava` | ~5 GB | General-purpose vision model |
+| `BakLLaVA` | ~5 GB | Lightweight alternative |
+
+3. Click **Download** on your chosen model.
+4. Once downloaded, click the model to **load** it. You should see it appear in the top bar of LM Studio.
+
+:::{.callout-tip}
+For East Asian text (Chinese, Japanese, Korean), **Qwen2.5-VL** is recommended because it has strong multilingual capabilities.
+:::
+
+:::{.callout-note}
+Vision models are large files (5–8 GB). Make sure you have enough disk space and a stable internet connection. The download may take several minutes.
+:::
+
+## Step 3: Start the LM Studio Local Server
+
+1. In LM Studio, click the **Developer** tab (the `<>` icon) in the left sidebar.
+2. Make sure your vision model is loaded.
+3. Click **Start Server**. By default, the server runs on port `1234`.
+4. You should see a message like "Server started on port 1234". The server is now ready to accept requests.
+5. **Keep LM Studio running** — the OCR Batch Processor needs to connect to it.
+
+:::{.callout-important}
+The LM Studio server must be running the entire time you use the OCR Batch Processor. If you close LM Studio or stop the server, the OCR tool will not be able to process images.
+:::
+
+## Step 4: Open the OCR Batch Processor
+
+1. Open your browser and go to: [https://kltng.github.io/ocr_batch_processor/](https://kltng.github.io/ocr_batch_processor/)
+2. The application loads directly in your browser — no installation needed.
+
+:::{.callout-tip}
+The OCR Batch Processor is a **progressive web app (PWA)**. You can install it to your computer for offline use by clicking the install icon in your browser's address bar (usually a small download or "+" icon).
+:::
+
+## Step 5: Configure the Connection to LM Studio
+
+1. Click the **Settings** (⚙️) icon in the toolbar.
+2. Select **LM Studio** as the provider.
+3. Set the **Base URL** to `http://localhost:1234` (this is the default LM Studio server address).
+4. The app will automatically detect available models from your LM Studio server. Select the vision model you loaded in Step 2.
+
+## Step 6: Open a Folder and Run OCR
+
+### Opening Files
+
+1. Click **Open Folder** in the sidebar.
+2. Select a folder on your computer that contains the images or PDFs you want to OCR.
+3. The sidebar will list all supported files: `.png`, `.jpg`, `.jpeg`, `.webp`, `.pdf`.
+4. Click a file to preview it.
+
+### Running OCR
+
+1. Select one or more files in the sidebar. Use **Shift+Click** or **Ctrl/Cmd+Click** to select multiple files.
+2. Click **Run OCR** in the top toolbar.
+3. The app processes each file using the vision model running in LM Studio.
+4. Results are saved automatically as `.json` sidecar files next to your original images (e.g., `image.png` → `image.json`).
+
+### Viewing Results
+
+The viewer shows a **side-by-side** layout:
+
+- **Left**: The original image.
+- **Right**: The OCR output rendered as Markdown/HTML.
+
+You can toggle between the original image, an annotated image with bounding boxes showing detected regions, and the Markdown/HTML output.
+
+## Step 7: PDF Tools
+
+The OCR Batch Processor includes built-in PDF tools:
+
+- **PDF to Images**: Select a PDF file and click "PDF to Images" to convert each page into a JPEG image. This is useful because vision models work on images, not PDFs directly.
+- **Split Pages**: If you have scanned double-page spreads (e.g., a book scan with two pages side by side), select the images and click "Split Pages". The app automatically splits each image into left (`_L.jpg`) and right (`_R.jpg`) halves.
+
+## Step 8: Export Results
+
+- OCR results are saved as `.json` sidecar files next to the original images.
+- Markdown files are also generated automatically for easy reading.
+- You can use these JSON or Markdown files for further processing with chatbots or other tools.
+
+:::{.callout-tip}
+Use the **"Skip Processed"** option when running batch OCR to avoid re-processing files that already have results. This saves time when you add new files to an existing folder.
+:::
+
+## Troubleshooting
+
+- **"Connection refused" or "Failed to fetch"**: Make sure LM Studio is running and the local server is started on port 1234.
+- **No models appear in settings**: Make sure you have downloaded and loaded a vision model in LM Studio before opening the OCR app.
+- **OCR output is empty or garbled**: Try a different vision model. Some models handle certain document types better than others.
+- **Slow processing**: Vision model inference depends on your hardware. On machines without a dedicated GPU, processing may be slow. Consider using the Google Gemini cloud option for faster results.
+
+## References
+
+- [MDN Web Docs: HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
+- [MDN Web Docs: CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
+- [W3Schools HTML Tutorial](https://www.w3schools.com/html/)
+- [W3Schools CSS Tutorial](https://www.w3schools.com/css/)
+- [GitHub Pages Documentation](https://docs.github.com/en/pages)
+- [Quarto Websites Documentation](https://quarto.org/docs/websites/)
+- [Hugo Quick Start](https://gohugo.io/getting-started/quick-start/)
+- [Jekyll Documentation](https://jekyllrb.com/docs/)
+- [LM Studio](https://lmstudio.ai)
+- [OCR Batch Processor](https://kltng.github.io/ocr_batch_processor/)
