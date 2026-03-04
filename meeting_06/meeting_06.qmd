@@ -1,0 +1,716 @@
+---
+title: "Meeting 06"
+format:
+    html:
+        toc: true
+        toc-depth: 3
+        code-fold: true
+        link-external-newwindow: true
+        code-overflow: wrap
+        code-copy: true
+# pdf output disabled
+
+date: "2026-03-03"
+date-modified: "2026-03-03"
+author: "Kwok-leong Tang"
+---
+
+# Today's Schedule
+
+- GitHub commit email privacy: keeping your personal email hidden
+- OCR tool: GLM-OCR (updated — macOS and Windows in one package)
+- Review: tools we have used so far
+- Two approaches to text data: programming scripts vs. LLM inference
+- How to use LM Studio
+
+# GitHub Commit Email Privacy
+
+Many of you have been committing to GitHub without realizing that your **personal email address is publicly visible** in your commit history. Every time you make a commit, Git attaches an email address to it — and by default, this is whatever email you configured with `git config`. Anyone can see this by viewing the commit log of a public repository.
+
+This section walks you through how to **hide your real email** and use GitHub's private `noreply` email address instead.
+
+## Why This Matters
+
+When you push commits to a **public repository** (like your `username.github.io` website), anyone can run:
+
+```{.bash}
+git log
+```
+
+and see the email address associated with each commit. If you used your personal email, it is now publicly exposed. This can lead to spam, phishing, or unwanted contact.
+
+:::{.callout-important}
+Your commit email is **permanently baked into the commit history**. Even if you change your email later, old commits will still show the old email. This is why it is important to set this up correctly **before** making more commits.
+:::
+
+## Step 1: Check Your Current Commit Email
+
+First, let's see what email Git is currently using on your computer. Open your terminal and run:
+
+```{.bash}
+git config --global user.email
+```
+
+If this shows your personal email (e.g., `yourname@gmail.com`), you should change it.
+
+You can also check a specific repository's commit history:
+
+```{.bash}
+git log --format='%ae' | sort -u
+```
+
+This will list all unique email addresses used in that repository's commits.
+
+## Step 2: Enable Email Privacy on GitHub
+
+Go to your GitHub email settings and enable the privacy feature:
+
+1. Go to [https://github.com/settings/emails](https://github.com/settings/emails)
+2. Scroll down to the **"Keep my email addresses private"** checkbox
+3. **Check** this box
+
+Once you enable this, GitHub will provide you with a `noreply` email address in the format:
+
+```
+ID+USERNAME@users.noreply.github.com
+```
+
+For example, if your GitHub username is `jzhang` and your account ID is `12345678`, your `noreply` email would be:
+
+```
+12345678+jzhang@users.noreply.github.com
+```
+
+:::{.callout-tip}
+Your `noreply` email address is displayed right below the checkbox after you enable it. **Copy this email** — you will need it in the next step.
+:::
+
+## Step 3: Block Pushes That Expose Your Email
+
+While you are on the same settings page ([https://github.com/settings/emails](https://github.com/settings/emails)), also enable the second privacy option:
+
+1. Find the checkbox labeled **"Block command line pushes that expose my email"**
+2. **Check** this box
+
+This acts as a safety net. If you accidentally forget to update your local Git config and try to push a commit that contains your personal email, GitHub will **reject the push** and show an error message. This prevents you from accidentally exposing your email.
+
+:::{.callout-note}
+If you see a push error after enabling this setting, it means your local Git config still has your personal email. Follow Step 4 below to fix it.
+:::
+
+## Step 4: Update Your Local Git Config
+
+Now you need to tell Git on your computer to use the `noreply` email for all future commits. Run:
+
+```{.bash}
+git config --global user.email "ID+USERNAME@users.noreply.github.com"
+```
+
+Replace `ID+USERNAME@users.noreply.github.com` with **your actual `noreply` email** from Step 2.
+
+For example:
+
+```{.bash}
+git config --global user.email "12345678+jzhang@users.noreply.github.com"
+```
+
+Verify that it was set correctly:
+
+```{.bash}
+git config --global user.email
+```
+
+This should now show your `noreply` email.
+
+:::{.callout-important}
+The `--global` flag sets this for **all repositories** on your computer. If you only want to change it for a specific repository, navigate into that repository folder and run the command without `--global`:
+
+```{.bash}
+cd your-repo-folder
+git config user.email "ID+USERNAME@users.noreply.github.com"
+```
+:::
+
+## Step 5: Verify Your Setup
+
+To confirm everything is working, make a test commit and check the email:
+
+1. Make a small change to any file in your repository (e.g., add a comment).
+2. Stage and commit:
+```{.bash}
+git add .
+git commit -m "Test commit with private email"
+```
+3. Check the commit log:
+```{.bash}
+git log -1 --format='%ae'
+```
+
+If it shows your `noreply` email, you are all set.
+
+4. Push to GitHub:
+```{.bash}
+git push
+```
+
+If the push succeeds, your email privacy settings are correctly configured. If it is rejected, double-check that you used the correct `noreply` email in Step 4.
+
+## Summary
+
+Here is a quick checklist for setting up commit email privacy:
+
+| Step | Action | Where |
+|------|--------|-------|
+| 1 | Check your current commit email | Terminal: `git config --global user.email` |
+| 2 | Enable "Keep my email addresses private" | [GitHub Email Settings](https://github.com/settings/emails) |
+| 3 | Enable "Block command line pushes that expose my email" | [GitHub Email Settings](https://github.com/settings/emails) |
+| 4 | Set `noreply` email in Git config | Terminal: `git config --global user.email "..."` |
+| 5 | Verify with a test commit | Terminal: `git log -1 --format='%ae'` |
+
+:::{.callout-tip}
+For more details, see the official GitHub documentation: [Setting your commit email address](https://docs.github.com/en/account-and-profile/how-tos/email-preferences/setting-your-commit-email-address).
+:::
+
+# OCR Tool: GLM-OCR (Updated)
+
+In Meeting 05, we introduced OCR tools for extracting text from scanned documents and images. This week, we provide an **updated version** of the **GLM-OCR** tool. The key change: **macOS and Windows versions are now combined into a single zip file**.
+
+Download `glm-ocr-mlx-main.zip` from the `meeting_06/software/` folder.
+
+:::{.callout-important}
+This replaces the separate macOS and Windows downloads from Meeting 05. If you already have the old version installed, please download the new unified version.
+:::
+
+## What is GLM-OCR?
+
+GLM-OCR is a local OCR tool that uses the GLM-OCR model (a 0.9B parameter vision-language model) to convert scanned documents and images into structured Markdown with tables, formulas, and layout-aware text — all running locally on your machine.
+
+- **macOS (Apple Silicon)**: Uses the MLX framework for fast local inference on the Metal GPU.
+- **Windows**: Uses **Ollama** for local inference.
+
+Both platforms share the same web interface and the same GLM-OCR model. The only difference is the inference backend. The launcher script automatically detects your operating system and uses the correct backend.
+
+### macOS Architecture (MLX)
+
+```{mermaid}
+flowchart LR
+    A["Browser\n(localhost:5003)"] --> B["Flask App\n(app.py)"]
+    B --> C["GLM-OCR SDK"]
+    C --> D["MLX Server\n(:8080)"]
+    D --> E["Metal GPU"]
+```
+
+### Windows Architecture (Ollama)
+
+```{mermaid}
+flowchart LR
+    A["Browser\n(localhost:5003)"] --> B["Flask App\n(app.py)"]
+    B --> C["GLM-OCR SDK"]
+    C --> D["Ollama\n(:11434)"]
+    D --> E["CPU / NVIDIA GPU"]
+```
+
+## Prerequisites
+
+### macOS (Apple Silicon)
+
+- **Apple Silicon Mac** (M1, M2, M3, or M4)
+- **Python 3.12 or higher**: Download from [python.org](https://www.python.org/downloads/macos/) if not installed.
+- **Git**: Install via Xcode Command Line Tools (`xcode-select --install`) or Homebrew (`brew install git`).
+- **Disk space**: ~20 GB for model weights (downloaded automatically on first launch).
+- **Memory**: 16 GB unified memory minimum; 32 GB+ recommended for multi-page PDFs.
+
+### Windows
+
+- **Python 3.12 or higher**: Download from [python.org](https://www.python.org/downloads/). During installation, make sure to check **"Add Python to PATH"**.
+- **Git**: Download from [git-scm.com](https://git-scm.com/download/win) or install via `winget install --id Git.Git`.
+- **Ollama**: The launcher will offer to install it automatically if not found. Or install manually from [ollama.com](https://ollama.com/download).
+- **Disk space**: ~5 GB for the Ollama model + layout detection weights.
+- **GPU (optional)**: An NVIDIA GPU with CUDA support speeds up inference significantly. Ollama also works on CPU, but will be slower.
+
+## Installation and Launch
+
+### macOS
+
+1. Download `glm-ocr-mlx-main.zip` from the `meeting_06/software/` folder and unzip it.
+2. **Double-click `launch.command`** in Finder to start the application.
+    - If macOS blocks it: right-click the file → **Open** → confirm in the dialog.
+3. On **first run**, the script automatically:
+    - Clones the GLM-OCR SDK from GitHub
+    - Creates a Python virtual environment and installs dependencies
+    - Downloads model weights from Hugging Face (~20 GB)
+4. The **MLX Server** starts on port 8080 (loads the model into unified memory — the first load takes about 30–60 seconds).
+5. The **Flask Web UI** starts on port 5003 and your browser opens automatically to `http://localhost:5003`.
+6. **Keep the terminal open.** Press `Ctrl+C` to stop both servers when done.
+
+### Windows
+
+1. Download `glm-ocr-mlx-main.zip` from the `meeting_06/software/` folder and unzip it.
+2. **Double-click `launch.bat`** to start the application.
+3. On **first run**, the script automatically:
+    - Checks for Python 3.12+ and Git
+    - Installs **Ollama** if not already present (prompts you to confirm — installs to `%LOCALAPPDATA%`, no admin required)
+    - Starts the Ollama service on port 11434
+    - Pulls the `glm-ocr:latest` model (first run — this may take several minutes)
+    - Clones the GLM-OCR SDK from GitHub
+    - Creates a Python virtual environment and installs dependencies
+    - Downloads layout detection weights (PP-DocLayoutV3)
+4. The **Flask Web UI** starts on port 5003 and your browser opens automatically to `http://localhost:5003`.
+5. **Keep the command prompt window open.** Close the window or press `Ctrl+C` to stop.
+
+:::{.callout-note}
+After the first run, subsequent launches are much faster because the virtual environment, Ollama model, and weights are already in place.
+:::
+
+## Project Structure
+
+After unzipping, the project folder looks like this:
+
+```
+glm-ocr-mlx-main/
+├── launch.command         ← macOS launcher (double-click)
+├── launch.bat             ← Windows launcher (double-click)
+├── app.py                 ← Flask web server
+├── config/
+│   ├── glm_config_mac.yaml      ← macOS settings (MLX, port 8080)
+│   └── glm_config_windows.yaml  ← Windows settings (Ollama, port 11434)
+├── requirements.txt       ← Python dependencies
+├── templates/
+│   └── index.html         ← web UI
+├── static/
+│   ├── css/style.css
+│   └── js/main.js
+├── utils/
+│   ├── download_weights.py
+│   ├── logger.py
+│   └── deep_clean.command ← reset utility (macOS)
+├── weights/               ← layout detection model (auto-downloaded)
+├── output/                ← OCR results (Markdown + JSON + images)
+├── sessions/              ← job state files
+└── glm-ocr/               ← cloned GLM-OCR SDK
+```
+
+The `weights/`, `output/`, `sessions/`, and `glm-ocr/` directories are created automatically at runtime. On Windows, the GLM-OCR model weights are managed by Ollama separately (not stored in the `weights/` folder).
+
+## Using the Web UI
+
+The web interface is identical on both macOS and Windows:
+
+1. **Upload**: Drag and drop a PDF, PNG, or JPEG onto the upload area — or click to browse. Accepted formats: `.pdf`, `.png`, `.jpg`, `.jpeg`.
+2. **Processing**: A progress bar shows real-time status. PDFs are split into page images, then each page is OCR'd sequentially.
+3. **Review Results**: A split-panel view shows the original document on the left and the rendered Markdown on the right. Navigate pages with Prev/Next buttons.
+4. **Export**: Click **Export** to download results as **Markdown** (`.md`) or **JSON** (`.json`) — either the current page or the full document.
+
+Additional features:
+
+- **Layout Toggle**: Switch between the original image and a layout visualization overlay to see detected regions (tables, formulas, text blocks).
+- **History**: Click the History button to browse and reload previous scan results. Results persist across app restarts.
+
+## Configuration
+
+Settings are stored in the `config/` directory. The launcher automatically selects the correct config file for your platform:
+
+- **macOS**: `config/glm_config_mac.yaml` — uses MLX server on port 8080
+- **Windows**: `config/glm_config_windows.yaml` — uses Ollama on port 11434
+
+Common settings you might want to adjust:
+
+| Setting | Mac Default | Windows Default | Description |
+|---------|-------------|-----------------|-------------|
+| `pipeline.enable_layout` | `true` | `true` | Enable layout detection. Set to `false` for simple documents. |
+| `pipeline.max_workers` | `4` | `32` | Parallel workers for region OCR. |
+| `pipeline.ocr_api.api_port` | `8080` | `11434` | Inference server port. |
+| `pipeline.ocr_api.api_mode` | `openai` | `ollama_generate` | API protocol for the inference server. |
+| `pipeline.page_loader.max_tokens` | `4096` | `4096` | Maximum tokens per OCR request. |
+| `pipeline.layout.threshold` | `0.3` | `0.3` | Detection confidence threshold. |
+
+### MaaS Mode (Cloud API)
+
+If you want to use the cloud API instead of local inference (works on any platform, no GPU needed), set `pipeline.maas.enabled: true` in either config file and provide a Zhipu API key:
+
+```{.yaml}
+pipeline:
+  maas:
+    enabled: true
+    api_key: your-zhipu-key
+```
+
+## Troubleshooting
+
+### macOS
+
+- **"Python 3.12 or higher is required"**: Install the latest Python from [python.org](https://www.python.org/downloads/macos/). The system Python on macOS is too old.
+- **macOS blocks `launch.command`**: Right-click the file → **Open** → confirm in the dialog. Or go to System Settings → Privacy & Security → Allow.
+- **MLX Server won't start (port 8080)**: Another process may be using the port. Run `lsof -i :8080` to check. Use the deep clean script to kill stale processes.
+- **First scan is very slow**: Normal — the model weights load into unified memory on the first request. Subsequent scans are much faster.
+- **Out of memory**: The model needs approximately 8 GB of unified memory. Close other heavy applications. 16 GB Macs should work; 8 GB Macs may struggle.
+
+### Windows
+
+- **"Python is not installed"**: Download and install Python 3.12+ from [python.org](https://www.python.org/downloads/). Make sure to check **"Add Python to PATH"** during installation.
+- **"Git is not installed"**: Install Git from [git-scm.com](https://git-scm.com/download/win) or run `winget install --id Git.Git` in PowerShell.
+- **Ollama installation fails**: Install Ollama manually from [ollama.com/download](https://ollama.com/download). The launcher installs it to `%LOCALAPPDATA%` (no admin rights needed).
+- **Ollama fails to start (port 11434)**: Another process may be using the port. Run `netstat -ano | findstr :11434` in Command Prompt to check. Kill the conflicting process or restart your computer.
+- **Model pull fails**: Check your internet connection. You can manually pull the model by running `ollama pull glm-ocr:latest` in Command Prompt.
+- **Slow processing on CPU**: If you do not have an NVIDIA GPU, OCR will run on CPU and may be slow. Consider using the MaaS cloud API mode for faster results.
+
+### Deep Clean / Reset (macOS)
+
+If something goes wrong on macOS, use the interactive reset utility:
+
+```{.bash}
+./utils/deep_clean.command
+```
+
+This script prompts you to selectively reset components: kill stale server processes, remove the virtual environment, delete the cloned SDK, clear OCR results and job history, or delete the downloaded model weights.
+
+# OCR Tool: OCR Batch Processor (Alternative for All Platforms)
+
+If GLM-OCR does not work on your machine (for example, if you have an Intel Mac), you can use the **OCR Batch Processor** — a web-based OCR tool that connects to **LM Studio** running locally on your machine.
+
+Application: [https://kltng.github.io/ocr_batch_processor/](https://kltng.github.io/ocr_batch_processor/)
+
+Repository: [https://github.com/kltng/ocr_batch_processor](https://github.com/kltng/ocr_batch_processor)
+
+## What is the OCR Batch Processor?
+
+The OCR Batch Processor is a progressive web application (PWA) that uses Vision Language Models to convert scanned documents and images into structured Markdown and HTML. It supports two providers:
+
+- **LM Studio (Local)**: Runs entirely on your computer. No data leaves your machine.
+- **Google Gemini (Cloud)**: Uses Google's API for higher accuracy (requires an API key).
+
+For the LM Studio setup, refer to the **How to Use LM Studio** section below.
+
+## Quick Start with OCR Batch Processor
+
+1. Make sure LM Studio is running with a **vision model** loaded and the **local server** started (see the "How to Use LM Studio" section).
+2. Open [https://kltng.github.io/ocr_batch_processor/](https://kltng.github.io/ocr_batch_processor/) in your browser.
+3. Click **Settings** (⚙️) → select **LM Studio** as the provider → set Base URL to `http://localhost:1234`.
+4. Click **Open Folder** → select a folder with your scanned images or PDFs.
+5. Select files and click **Run OCR**.
+
+For detailed step-by-step instructions, refer to [Meeting 05](../meeting_05/meeting_05.qmd).
+
+# Review: Tools We Have Used So Far
+
+Before introducing new concepts, let's take stock of all the tools we have set up and used in this course. As humanities students, you may not have encountered any of these before the semester began. Here is a summary of each tool, what it does, and why we use it.
+
+## Antigravity (Code Editor)
+
+[Antigravity](https://developers.google.com/antigravity) is an **AI-powered code editor** developed by Google. It is built on top of Visual Studio Code (VS Code), so the interface will look familiar if you have used VS Code before. What makes Antigravity different from a regular code editor is its **agent-first** approach: it has built-in AI assistants that can help you write code, generate files, debug errors, and even plan out multi-step tasks.
+
+In this course, we use Antigravity as our primary editor for writing HTML, CSS, Python scripts, and Quarto documents. Its AI chat panel (accessible via `Ctrl+Shift+I` / `Cmd+Shift+I`) lets you describe what you want in plain English, and the AI generates code for you. This is especially useful for humanities students who are learning to code — you can focus on *what* you want to accomplish rather than memorizing syntax.
+
+| Feature | Description |
+|---------|-------------|
+| Based on | Visual Studio Code (VS Code) |
+| AI capabilities | Built-in Gemini models, code generation, debugging, planning |
+| We use it for | Writing HTML/CSS, Python scripts, Quarto documents, Git operations |
+| First introduced | Meeting 05 (Building a personal website) |
+
+## Git (Version Control)
+
+[Git](https://git-scm.com/) is a **version control system**. It tracks changes to your files over time, so you can go back to previous versions, see what changed, and collaborate with others without overwriting each other's work. Think of it as an "undo history" for your entire project — but much more powerful.
+
+Every time you make a meaningful change, you create a **commit** (a snapshot of your files at that point in time). You can view the full history of commits, compare different versions, and even work on separate "branches" of your project simultaneously.
+
+| Feature | Description |
+|---------|-------------|
+| What it is | A distributed version control system |
+| Key commands | `git add`, `git commit`, `git push`, `git pull`, `git log` |
+| We use it for | Tracking changes to our code and documents, pushing to GitHub |
+| First introduced | Meeting 03 |
+
+## GitHub (Code Hosting and Collaboration)
+
+[GitHub](https://github.com) is a **cloud platform** that hosts Git repositories. While Git runs locally on your computer, GitHub stores your repositories online so you can access them from anywhere, share them with others, and take advantage of additional features like GitHub Pages (free website hosting) and GitHub Actions (automated workflows).
+
+In this course, GitHub is where you host your personal website (`username.github.io`) and submit your assignments.
+
+| Feature | Description |
+|---------|-------------|
+| What it is | A cloud platform for hosting Git repositories |
+| Key features we use | GitHub Pages (website hosting), GitHub Actions (automated deployment), GitHub CLI (`gh`) |
+| We use it for | Hosting personal websites, submitting assignments, collaboration |
+| First introduced | Meeting 03 |
+
+## Ollama (Local LLM Runner)
+
+[Ollama](https://ollama.com/) is a **command-line tool** that lets you download and run large language models (LLMs) locally on your computer. It is lightweight and designed to be simple — you can download a model and start chatting with it in just a few commands.
+
+In this course, we used Ollama primarily on **Windows** as the inference backend for the GLM-OCR tool. When the OCR tool needs to interpret an image of text, it sends the image to a model running through Ollama.
+
+| Feature | Description |
+|---------|-------------|
+| What it is | A command-line tool for running LLMs locally |
+| Interface | Terminal / command line |
+| We use it for | Running the GLM-OCR model on Windows for OCR tasks |
+| First introduced | Meeting 05 (OCR tool for Windows) |
+
+:::{.callout-note}
+Ollama is great for quick command-line usage, but it does not have a graphical interface. If you prefer a visual application, LM Studio (introduced below) is a better choice.
+:::
+
+## LM Studio (Local LLM Application)
+
+[LM Studio](https://lmstudio.ai/) is a **free desktop application** for running LLMs locally on your computer. Unlike Ollama, LM Studio provides a full graphical interface — a chat window, a model discovery page, and a local API server. It supports thousands of models from Hugging Face, and you can switch between models with a few clicks.
+
+In this course, we use LM Studio as the backend for the OCR Batch Processor (for students without Apple Silicon Macs) and as a general-purpose tool for experimenting with LLMs privately and offline.
+
+| Feature | Description |
+|---------|-------------|
+| What it is | A desktop application for running LLMs locally |
+| Interface | Graphical (chat window, model browser, API server) |
+| We use it for | OCR Batch Processor backend, experimenting with local LLMs |
+| First introduced | Meeting 05, with detailed setup instructions in Meeting 06 |
+
+## Openwork (AI Agent for Desktop)
+
+[Openwork](https://github.com/different-ai/openwork) is an **open-source AI agent** that runs locally on your computer. It can read files, create documents, automate repetitive tasks, and connect to services like Google Drive and Notion. Think of it as a personal assistant that lives on your desktop and can interact with your files and workflows.
+
+In this course, we explore Openwork as an example of the **agentic approach** — the idea that AI can do more than just answer questions in a chat window. An agent can take actions, use tools, and complete multi-step tasks on your behalf.
+
+| Feature | Description |
+|---------|-------------|
+| What it is | An open-source desktop AI agent |
+| Interface | Desktop application |
+| We use it for | Automating file tasks, exploring the agentic workflow concept |
+
+## Tools at a Glance
+
+Here is a quick comparison of all the tools:
+
+| Tool | Category | Interface | Local or Cloud | Primary Use in This Course |
+|------|----------|-----------|---------------|---------------------------|
+| Antigravity | Code editor | GUI (desktop app) | Local | Writing code and documents with AI assistance |
+| Git | Version control | Terminal | Local | Tracking changes to files |
+| GitHub | Code hosting | Web + CLI | Cloud | Hosting websites, submitting assignments |
+| Ollama | LLM runner | Terminal | Local | Running models for OCR (Windows) |
+| LM Studio | LLM runner | GUI (desktop app) | Local | Running models for OCR and experimentation |
+| Openwork | AI agent | GUI (desktop app) | Local | Automating desktop tasks |
+
+:::{.callout-tip}
+Notice that most of our tools run **locally** on your own computer. This is intentional — running tools locally means your data stays private, you do not need an internet connection (after initial setup), and you are not dependent on a company's servers or subscription plans.
+:::
+
+# Two Approaches to Text Data: Scripts vs. LLM Inference
+
+As humanities researchers, you will often work with **text data** — historical documents, literary texts, archival materials, transcriptions, and more. There are two fundamentally different approaches to processing and analyzing this data with a computer. Understanding the difference is essential for choosing the right tool for your research.
+
+## Approach 1: Programming Scripts
+
+The traditional approach is to write a **programming script** (usually in Python) that processes text according to explicit rules you define. The script follows your instructions exactly, step by step.
+
+For example, suppose you have a collection of 500 historical documents and you want to count how many times the word "emperor" (皇帝) appears in each one. A Python script might look like this:
+
+```{.python}
+import os
+
+folder = "documents/"
+for filename in os.listdir(folder):
+    with open(os.path.join(folder, filename), "r", encoding="utf-8") as f:
+        text = f.read()
+        count = text.count("皇帝")
+        print(f"{filename}: {count} occurrences")
+```
+
+This script does exactly one thing: it opens each file, counts the exact string "皇帝", and prints the result. It is **fast**, **reproducible** (running it again gives the same result), and **transparent** (you can read the code and know exactly what it does).
+
+### Strengths of Scripts
+
+- **Precision**: The script does exactly what you tell it to. No guessing, no variation.
+- **Reproducibility**: Running the same script on the same data always produces the same output.
+- **Speed**: Processing thousands of files takes seconds.
+- **Scalability**: Once written, a script can handle 10 files or 10 million files.
+
+### Limitations of Scripts
+
+- **Rigid**: The script only does what you explicitly program. It cannot handle ambiguity or context.
+- **Requires programming knowledge**: You need to know how to write and debug code.
+- **Cannot understand meaning**: A script counting "皇帝" will miss "天子" (Son of Heaven) or "上" (a euphemism for the emperor) — it has no understanding of semantics.
+
+## Approach 2: LLM Inference
+
+The newer approach is to use a **large language model** (LLM) to process your text. Instead of writing explicit rules, you give the model a **prompt** — a natural-language instruction — and the model uses its training to generate a response.
+
+For the same task (finding references to the emperor), you might send each document to an LLM with a prompt like:
+
+```{.markdown}
+Read the following historical Chinese text and identify all references to
+the emperor, including indirect references, titles, and euphemisms.
+List each reference with its context.
+
+[Document text here]
+```
+
+The model can understand that "皇帝", "天子", "上", "聖上", "陛下", and even contextual references like "龍顏" all refer to the emperor. It can handle ambiguity and context in ways that a simple script cannot.
+
+### Strengths of LLM Inference
+
+- **Understanding context and meaning**: LLMs can interpret ambiguous language, recognize synonyms, and understand context.
+- **Flexibility**: You can change what the model does simply by changing the prompt — no code rewriting needed.
+- **Low barrier to entry**: You describe the task in natural language. No programming required for basic use.
+- **Multilingual**: Most modern LLMs handle Chinese, Japanese, Korean, and English well.
+
+### Limitations of LLM Inference
+
+- **Non-deterministic**: Running the same prompt twice may produce slightly different results (due to the probabilistic nature of LLMs, as we discussed in Meeting 02).
+- **Slower**: Processing each document takes seconds to minutes, compared to milliseconds for a script.
+- **Cost**: Cloud-based LLMs charge per token. Processing large corpora can be expensive. Local models are free but slower.
+- **Hallucination risk**: The model might "find" references that do not actually exist in the text.
+- **Hard to verify at scale**: When processing hundreds of documents, it is difficult to check every result.
+
+## When to Use Which?
+
+Neither approach is universally better. The right choice depends on your task:
+
+| Situation | Recommended Approach |
+|-----------|---------------------|
+| Exact string matching (e.g., counting a specific word) | Script |
+| Pattern-based extraction (e.g., dates, names with known formats) | Script |
+| Understanding meaning and context | LLM inference |
+| Classifying or categorizing text by topic | LLM inference |
+| Processing very large datasets (10,000+ files) quickly | Script |
+| Tasks requiring nuanced judgment (e.g., sentiment, tone) | LLM inference |
+| Tasks where reproducibility is critical | Script |
+| Exploratory analysis (you are not sure what to look for yet) | LLM inference |
+
+:::{.callout-tip}
+In practice, the most effective workflows **combine both approaches**. For example, you might use a script to clean and organize your data, then use an LLM to classify or annotate it, and finally use another script to aggregate and analyze the results. This is the hybrid approach we will practice in this course.
+:::
+
+## A Concrete Example: OCR Post-Processing
+
+In Meeting 05, we used OCR to extract text from scanned historical documents. The raw OCR output often contains errors — misrecognized characters, missing punctuation, and garbled text. How should we clean it up?
+
+**Script approach**: Write rules to fix common OCR errors (e.g., replace "己" with "已" when it appears before certain characters). This is fast and consistent, but you need to know all the error patterns in advance.
+
+**LLM approach**: Send the raw OCR text to an LLM with a prompt like "This is OCR output from a Qing dynasty document. Please correct any obvious OCR errors while preserving the original text as much as possible." The model can use its knowledge of classical Chinese to fix errors you might not have anticipated.
+
+**Hybrid approach**: First use a script to fix the most common and obvious errors (fast, cheap), then send the partially cleaned text to an LLM for final corrections (accurate, but slower and more expensive). This gives you the best of both worlds.
+
+# How to Use LM Studio
+
+LM Studio is a desktop application that lets you run large language models (LLMs) **locally and privately** on your own computer. No data leaves your machine, and you do not need an internet connection after downloading a model. This section covers how to set up LM Studio and use it for the tasks in this course.
+
+:::{.callout-note}
+A separate step-by-step installation guide is available: [instruction_lmstudio_qwen3.5](instruction_lmstudio_qwen3.5.html). This section provides an overview and covers usage beyond installation.
+:::
+
+## Why Run Models Locally?
+
+As humanities researchers working with potentially sensitive or unpublished materials, running models locally has several advantages:
+
+- **Privacy**: Your data never leaves your computer. No text is sent to OpenAI, Google, or any other company.
+- **No cost per query**: Once a model is downloaded, you can use it as much as you want for free.
+- **No internet required**: After the initial download, everything runs offline.
+- **No censorship or filtering**: Local models do not have the same content restrictions as commercial APIs. This is especially useful for historical texts that may contain content flagged by commercial services.
+
+## What You Need
+
+| Requirement | Details |
+|-------------|---------|
+| Computer | Mac with Apple Silicon (M1/M2/M3/M4), Windows PC, or Linux |
+| RAM | At least 8 GB (16 GB recommended for larger models) |
+| Disk space | 1–10 GB per model, depending on model size |
+| LM Studio | Download from [https://lmstudio.ai](https://lmstudio.ai) |
+
+:::{.callout-important}
+**Intel Mac users**: LM Studio does **not** support Intel-based Macs. If your Mac has an Intel processor (check via Apple menu > About This Mac), you will not be able to use LM Studio. Please use cloud-based alternatives like the [Harvard AI Sandbox](https://huit.harvard.edu/ai-sandbox) instead.
+:::
+
+## Step 1: Install LM Studio
+
+1. Go to [https://lmstudio.ai](https://lmstudio.ai) and download the installer for your operating system.
+2. Install and open LM Studio. (See the [detailed installation guide](instruction_lmstudio_qwen3.5.html) for platform-specific instructions.)
+
+## Step 2: Download a Model
+
+When you first open LM Studio, you will see the **Discover** page (click the magnifying glass icon in the left sidebar). This is where you search for and download models.
+
+For this course, we recommend starting with **Qwen3.5-0.8B**, a small but capable model:
+
+1. In the search bar, type `Qwen3.5-0.8B`.
+2. Select a quantized version — **Q4_K_M** is recommended for most computers (good balance of quality and file size).
+3. Click **Download**. The model is under 1 GB and should download quickly.
+
+:::{.callout-tip}
+**What is quantization?** Models come in different precisions. Full precision (F16) is the highest quality but uses the most RAM. Quantized versions (Q4, Q8, etc.) compress the model to use less memory, with only a small loss in quality. For a 0.8B parameter model, the difference is barely noticeable.
+:::
+
+## Step 3: Chat with the Model
+
+Once downloaded, you can start chatting:
+
+1. Click the **Chat** tab in the left sidebar (the speech bubble icon).
+2. At the top of the chat window, select the model you just downloaded from the dropdown.
+3. Type a message and press Enter.
+
+Try these prompts to test the model:
+
+```{.markdown}
+Hello! Can you introduce yourself?
+```
+
+```{.markdown}
+Please translate the following classical Chinese text into English:
+子曰：學而時習之，不亦說乎？
+```
+
+```{.markdown}
+What are the main differences between Tang dynasty poetry and Song dynasty poetry?
+```
+
+:::{.callout-note}
+The Qwen3.5-0.8B model is intentionally small. It may make mistakes or give shorter answers than commercial models like ChatGPT or Claude. This is expected — we are using it to learn how local models work, not to replace cloud services.
+:::
+
+## Step 4: Use the Local Server (API Mode)
+
+LM Studio can also run as a **local API server**, which allows other applications (like the OCR Batch Processor) to connect to it and send requests. This is how we used LM Studio in Meeting 05 for OCR.
+
+1. Click the **Developer** tab (the `<>` icon) in the left sidebar.
+2. Make sure a model is loaded (selected at the top).
+3. Click **Start Server**. The server will start on `http://localhost:1234` by default.
+4. The server is now running and other applications can connect to it.
+
+```{mermaid}
+flowchart LR
+    App["Your Application\n(e.g., OCR Batch Processor)"] -->|HTTP Request| Server["LM Studio Server\n(localhost:1234)"]
+    Server -->|Process with Model| Model["Loaded LLM"]
+    Model -->|Response| Server
+    Server -->|HTTP Response| App
+```
+
+:::{.callout-important}
+The LM Studio server must be **running the entire time** your application needs it. If you close LM Studio or stop the server, the connected application will lose its connection and stop working.
+:::
+
+## Step 5: Explore Larger Models
+
+Once you are comfortable with the 0.8B model, you can try larger models for better quality. Here are some recommendations for humanities work:
+
+| Model | Size | RAM Needed | Good For |
+|-------|------|-----------|----------|
+| Qwen3.5-0.8B | ~0.5 GB | 2–4 GB | Learning, basic tasks, quick experiments |
+| Qwen3.5-3B | ~2 GB | 4–6 GB | Better quality, still fast |
+| Qwen3.5-7B | ~4 GB | 8–10 GB | Good quality for most tasks |
+| Gemma 3-4B | ~2.5 GB | 4–6 GB | Multilingual, good with CJK text |
+
+:::{.callout-tip}
+The rule of thumb: you need about **1.5× the model file size** in free RAM to run a model comfortably. If a model is 4 GB, you should have at least 6 GB of free RAM available.
+:::
+
+## Common Issues and Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Model loads slowly | Close other applications to free up RAM |
+| Responses are very slow | Try a smaller model or a more compressed quantization (e.g., Q4 instead of Q8) |
+| "Out of memory" error | The model is too large for your computer. Download a smaller version |
+| No models appear in search | Check your internet connection. LM Studio needs internet to browse and download models |
+| Server won't start | Another application may be using port 1234. Close it or change the port in LM Studio settings |
+
+:::{.callout-note}
+If you run into issues, bring your laptop to office hours and we can troubleshoot together.
+:::
